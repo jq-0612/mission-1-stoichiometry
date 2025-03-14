@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Combustion Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2 {
+            margin: 10px 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .question-container, .retry-container, .mission-complete {
+            display: none;
+            margin-top: 20px;
+        }
+        .mission-complete {
+            font-size: 24px;
+            color: #00ff00;
+        }
+        button {
+            background-color: #00aaff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px auto;
+            width: 80%;
+            max-width: 300px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0088cc;
+        }
+        .correct {
+            background-color: green !important;
+        }
+        .incorrect {
+            background-color: red !important;
+        }
+        #timer {
+            font-size: 18px;
+            color: #ffcc00;
+            margin: 10px 0;
+        }
+        #score {
+            font-size: 18px;
+            color: #00ff00;
+            margin: 10px 0;
+        }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        #progressBar {
+            width: 0%;
+            height: 10px;
+            background-color: #00aaff;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fuel Combustion Challenge</h1>
+        <div id="nameInputContainer">
+            <label for="playerName">Enter your name:</label>
+            <input type="text" id="playerName" placeholder="Your Name">
+            <button onclick="startGame()">Start Mission</button>
+        </div>
+        <h2>Current Station: <span id="currentStation">RON 95 (C₈H₁₈)</span></h2>
+
+        <div class="question-container" id="questionContainer">
+            <h2>Answer This Question</h2>
+            <p id="questionText"></p>
+            <button onclick="checkAnswer(1)" id="btn1">A. <span id="answer1"></span></button>
+            <button onclick="checkAnswer(2)" id="btn2">B. <span id="answer2"></span></button>
+            <button onclick="checkAnswer(3)" id="btn3">C. <span id="answer3"></span></button>
+            <p id="hintText"></p>
+            <p id="retryText"></p>
+            <p id="timer">Time left: <span id="timeLeft">10</span>s</p>
+        </div>
+
+        <div class="retry-container" id="retryContainer">
+            🚨 You have used all attempts! Click below to retry and proceed. <br><br>
+            <button onclick="proceedAfterRetry()">Retry & Proceed</button>
+        </div>
+
+        <div class="mission-complete" id="missionComplete">
+            ✅ <strong>Mission Accomplished!</strong>
+        </div>
+
+        <p id="score">Score: <span id="currentScore">0</span></p>
+        <div style="width: 100%; background-color: #333; border-radius: 5px;">
+            <div id="progressBar"></div>
+        </div>
+        <button onclick="restartGame()" id="restartButton" style="display: none;">Restart Game</button>
+    </div>
+
+    <!-- Confetti Animation -->
+    <div class="confetti" id="confetti"></div>
+
+    <script>
+        let stations = ["ron95", "ron97", "ethanol", "diesel"];
+        let stationNames = {
+            "ron95": "RON 95 (C₈H₁₈)",
+            "ron97": "RON 97 (C₈H₁₈, higher efficiency)",
+            "ethanol": "Ethanol (C₂H₅OH)",
+            "diesel": "Diesel (C₁₂H₂₆)"
+        };
+        let currentStationIndex = 0;
+        let correctAnswer = 0;
+        let retries = 3;
+        let score = 0;
+        let timer;
+        let timeLeft = 10;
+        let playerName = "";
+
+        function startGame() {
+            playerName = document.getElementById("playerName").value || "Player";
+            document.getElementById("nameInputContainer").style.display = "none";
+            let fuelType = stations[currentStationIndex];
+            document.getElementById("currentStation").innerText = stationNames[fuelType];
+            document.getElementById("questionContainer").style.display = "block";
+            document.getElementById("missionComplete").style.display = "none";
+            document.getElementById("retryContainer").style.display = "none";
+            document.getElementById("restartButton").style.display = "none";
+            retries = 3;
+            resetButtonColors();
+            setQuestion(fuelType);
+            startTimer();
+        }
+
+        function setQuestion(fuelType) {
+            let questionText = "";
+            let answers = [];
+
+            if (fuelType === "ron95") {
+                questionText = "How many moles of O₂ are required to completely combust 2 moles of RON 95?";
+                answers = ["25", "20", "18"];
+                correctAnswer = 1;
+            } else if (fuelType === "ron97") {
+                questionText = "Why does RON 97 burn more efficiently than RON 95?";
+                answers = ["It has a lower octane rating", "It prevents knocking", "It has more carbon atoms"];
+                correctAnswer = 2;
+            } else if (fuelType === "ethanol") {
+                questionText = "Ethanol contains oxygen in its structure. Does this reduce O₂ demand?";
+                answers = ["No", "Slightly", "Yes"];
+                correctAnswer = 3;
+            } else if (fuelType === "diesel") {
+                questionText = "Why does diesel require a different combustion process?";
+                answers = ["It ignites via compression", "It has less energy per mole", "It contains more oxygen"];
+                correctAnswer = 1;
+            }
+
+            document.getElementById("questionText").innerText = questionText;
+            document.getElementById("answer1").innerText = answers[0];
+            document.getElementById("answer2").innerText = answers[1];
+            document.getElementById("answer3").innerText = answers[2];
+        }
+
+        function checkAnswer(choice) {
+            clearInterval(timer);
+            if (choice === correctAnswer) {
+                document.getElementById(`btn${choice}`).classList.add("correct");
+                document.getElementById("hintText").innerText = "✅ Correct! Mission Accomplished.";
+                document.getElementById("questionContainer").style.display = "none";
+                score += 10;
+                updateScore();
+
+                // Show Mission Accomplished briefly, then proceed
+                document.getElementById("missionComplete").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("missionComplete").style.display = "none";
+                    nextStation();
+                }, 2000);
+            } else {
+                retries--;
+                score -= 5;
+                updateScore();
+                document.getElementById(`btn${choice}`).classList.add("incorrect");
+                if (retries > 0) {
+                    document.getElementById("hintText").innerText = "❌ Incorrect! Try again.";
+                    document.getElementById("retryText").innerText = `Retries left: ${retries}`;
+                    startTimer();
+                } else {
+                    document.getElementById("hintText").innerText = "🚨 Out of attempts!";
+                    document.getElementById("questionContainer").style.display = "none";
+                    document.getElementById("retryContainer").style.display = "block";
+                }
+            }
+        }
+
+        function proceedAfterRetry() {
+            document.getElementById("retryContainer").style.display = "none";
+            document.getElementById("missionComplete").style.display = "block";
+
+            // Hide the message after 2 seconds and move to next station
+            setTimeout(() => {
+                document.getElementById("missionComplete").style.display = "none";
+                nextStation();
+            }, 2000);
+        }
+
+        function nextStation() {
+            currentStationIndex++;
+            const progress = ((currentStationIndex) / stations.length) * 100;
+            document.getElementById("progressBar").style.width = `${progress}%`;
+            if (currentStationIndex < stations.length) {
+                startGame();
+            } else {
+                document.getElementById("missionComplete").innerHTML = "🎉 All stations completed! Well done!";
+                document.getElementById("missionComplete").style.display = "block";
+                document.getElementById("restartButton").style.display = "block";
+                showConfetti();
+                updateLeaderboard();
+                showLeaderboard();
+            }
+        }
+
+        function resetButtonColors() {
+            document.getElementById("btn1").classList.remove("correct", "incorrect");
+            document.getElementById("btn2").classList.remove("correct", "incorrect");
+            document.getElementById("btn3").classList.remove("correct", "incorrect");
+        }
+
+        function startTimer() {
+            timeLeft = 10;
+            document.getElementById("timeLeft").innerText = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timeLeft").innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    checkAnswer(0); // Auto-fail if time runs out
+                }
+            }, 1000);
+        }
+
+        function updateScore() {
+            document.getElementById("currentScore").innerText = score;
+        }
+
+        function showConfetti() {
+            const confettiContainer = document.getElementById("confetti");
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement("div");
+                confetti.classList.add("confetti-piece");
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confettiContainer.appendChild(confetti);
+            }
+            setTimeout(() => {
+                confettiContainer.innerHTML = "";
+            }, 5000);
+        }
+
+        function updateLeaderboard() {
+            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            leaderboard.push({ name: playerName, score: score });
+            leaderboard.sort((a, b) => b.score - a.score);
+            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        }
+
+        function showLeaderboard() {
+            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            let leaderboardHTML = "<h2>Leaderboard</h2><ol>";
+            leaderboard.slice(0, 5).forEach((entry, index) => {
+                leaderboardHTML += `<li>${entry.name}: ${entry.score} points</li>`;
+            });
+            leaderboardHTML += "</ol>";
+            document.getElementById("missionComplete").innerHTML += leaderboardHTML;
+        }
+
+        function restartGame() {
+            currentStationIndex = 0;
+            score = 0;
+            updateScore();
+            document.getElementById("missionComplete").style.display = "none";
+            document.getElementById("restartButton").style.display = "none";
+            startGame();
+        }
+    </script>
+</body>
+</html>

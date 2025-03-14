@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission 3: Fuel Injection & Quantum Mechanics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            animation: backgroundAnimation 10s infinite alternate;
+        }
+        @keyframes backgroundAnimation {
+            0% {
+                background: radial-gradient(circle, #1a1a2e, #16213e, #0f3460);
+            }
+            100% {
+                background: radial-gradient(circle, #16213e, #0f3460, #1a1a2e);
+            }
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5rem;
+            color: #00ffcc;
+            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+        }
+        .simulation-container, .mission-complete {
+            display: none;
+            margin-top: 20px;
+        }
+        .comparison-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px auto;
+            width: 90%;
+        }
+        .fuel-type {
+            width: 45%;
+            border: 1px solid #444;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .fuel-type:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.8);
+        }
+        .slider-container {
+            margin: 20px auto;
+            width: 100%;
+            text-align: left;
+        }
+        input[type="range"] {
+            width: 100%;
+            background: linear-gradient(to right, #00ffcc, #00b3b3);
+            border-radius: 5px;
+            height: 10px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ffcc;
+            text-shadow: 0 0 5px #00ffcc;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #444;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(to right, #00ffcc, #00b3b3);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        .mission-complete {
+            font-size: 22px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .restart-button, .compare-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #00ffcc;
+            border: none;
+            border-radius: 5px;
+            color: #16213e;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .restart-button:hover, .compare-button:hover {
+            background-color: #00b3b3;
+            transform: scale(1.1);
+        }
+        .explanation {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #00ffcc;
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            background-color: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+        .emoji {
+            font-size: 20px;
+            margin-right: 5px;
+            animation: float 2s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Mission 3: Fuel Injection & Quantum Mechanics</h1>
+    <button onclick="startSimulation()" class="compare-button">Start Mission</button>
+
+    <div class="simulation-container" id="simulationContainer">
+        <h2>Compare Fuel Types: RON 95 vs RON 97</h2>
+
+        <div class="comparison-container">
+            <!-- RON 95 Section -->
+            <div class="fuel-type" id="ron95">
+                <h3>RON 95</h3>
+                <div class="slider-container">
+                    <label for="atomization95">Fuel Atomization Level: <span id="atomization95Value">50</span>%</label>
+                    <input type="range" id="atomization95" min="0" max="100" value="50" oninput="updateValue('atomization95')">
+                </div>
+
+                <div class="slider-container">
+                    <label for="catalyst95">Catalyst Efficiency (% Reaction Speed): <span id="catalyst95Value">50</span>%</label>
+                    <input type="range" id="catalyst95" min="0" max="100" value="50" oninput="updateValue('catalyst95')">
+                </div>
+
+                <p class="result" id="result95">Efficiency Score: --%</p>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progress95"></div>
+                </div>
+            </div>
+
+            <!-- RON 97 Section -->
+            <div class="fuel-type" id="ron97">
+                <h3>RON 97</h3>
+                <div class="slider-container">
+                    <label for="atomization97">Fuel Atomization Level: <span id="atomization97Value">50</span>%</label>
+                    <input type="range" id="atomization97" min="0" max="100" value="50" oninput="updateValue('atomization97')">
+                </div>
+
+                <div class="slider-container">
+                    <label for="catalyst97">Catalyst Efficiency (% Reaction Speed): <span id="catalyst97Value">50</span>%</label>
+                    <input type="range" id="catalyst97" min="0" max="100" value="50" oninput="updateValue('catalyst97')">
+                </div>
+
+                <p class="result" id="result97">Efficiency Score: --%</p>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progress97"></div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="compareFuels()" class="compare-button">Compare Fuel Efficiency</button>
+
+        <div class="explanation" id="explanationText"></div>
+
+        <button onclick="restartMission()" class="restart-button" id="restartButton" style="display: none;">Restart Mission</button>
+    </div>
+
+    <div class="mission-complete" id="missionComplete">
+        ✅ <strong>Mission Accomplished!</strong> You have optimized Proton's fuel efficiency! 🚗
+    </div>
+
+    <script>
+        // Ensure the DOM is fully loaded before running the script
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM fully loaded and parsed");
+        });
+
+        function startSimulation() {
+            console.log("Start Mission button clicked");
+            document.getElementById("simulationContainer").style.display = "block";
+            document.getElementById("missionComplete").style.display = "none";
+            document.getElementById("result95").innerText = "Efficiency Score: --%";
+            document.getElementById("result97").innerText = "Efficiency Score: --%";
+            document.getElementById("explanationText").innerText = "";
+            document.getElementById("restartButton").style.display = "none";
+            document.getElementById("progress95").style.width = "0%";
+            document.getElementById("progress97").style.width = "0%";
+        }
+
+        function updateValue(param) {
+            console.log(`Updating value for ${param}`);
+            let value = document.getElementById(param).value;
+            // Ensure the value stays within the valid range
+            if (value < 0) value = 0;
+            if (value > 100) value = 100;
+            document.getElementById(param + "Value").innerText = value;
+            document.getElementById(param).value = value;
+        }
+
+        function calculateEfficiency(atomization, catalyst, energyOffset) {
+            // Ensure the efficiency score does not exceed 100%
+            let efficiency = (atomization * 0.4) + (catalyst * 0.6) + energyOffset;
+            return Math.min(Math.round(efficiency), 100);
+        }
+
+        function compareFuels() {
+            console.log("Compare Fuels button clicked");
+
+            // RON 95 Parameters
+            let atomization95 = parseInt(document.getElementById("atomization95").value);
+            let catalyst95 = parseInt(document.getElementById("catalyst95").value);
+            let efficiency95 = calculateEfficiency(atomization95, catalyst95, 25); // RON 95 has lower energy offset
+
+            // RON 97 Parameters
+            let atomization97 = parseInt(document.getElementById("atomization97").value);
+            let catalyst97 = parseInt(document.getElementById("catalyst97").value);
+            let efficiency97 = calculateEfficiency(atomization97, catalyst97, 50); // RON 97 has higher energy offset
+
+            // Display Results
+            document.getElementById("result95").innerText = `Efficiency Score: ${efficiency95}%`;
+            document.getElementById("result97").innerText = `Efficiency Score: ${efficiency97}%`;
+            document.getElementById("progress95").style.width = `${efficiency95}%`;
+            document.getElementById("progress97").style.width = `${efficiency97}%`;
+
+            // Dynamic Explanation with Emojis
+            let explanation = `
+                <strong>Comparison Results:</strong><br>
+                - <span class="emoji">📊</span> <strong>RON 95 Efficiency:</strong> ${efficiency95}%<br>
+                - <span class="emoji">📊</span> <strong>RON 97 Efficiency:</strong> ${efficiency97}%<br><br>
+                <strong>Parameter Analysis:</strong><br>
+                - <span class="emoji">💧</span> <strong>Fuel Atomization:</strong><br>
+                  &nbsp;&nbsp;• RON 95: ${atomization95}% atomization ensures ${atomization95 >= 70 ? "excellent fuel droplet size 🌟" : "moderate fuel droplet size ⚖️"}.<br>
+                  &nbsp;&nbsp;• RON 97: ${atomization97}% atomization ensures ${atomization97 >= 70 ? "excellent fuel droplet size 🌟" : "moderate fuel droplet size ⚖️"}.<br>
+                - <span class="emoji">⚡</span> <strong>Catalyst Efficiency:</strong><br>
+                  &nbsp;&nbsp;• RON 95: ${catalyst95}% catalyst efficiency ${catalyst95 >= 80 ? "significantly speeds up the combustion reaction 🚀" : "moderately speeds up the reaction ⏩"}.<br>
+                  &nbsp;&nbsp;• RON 97: ${catalyst97}% catalyst efficiency ${catalyst97 >= 80 ? "significantly speeds up the combustion reaction 🚀" : "moderately speeds up the reaction ⏩"}.<br>
+                - <span class="emoji">🔥</span> <strong>Octane Rating:</strong><br>
+                  &nbsp;&nbsp;• RON 95 has a lower octane rating (95), which makes it more prone to knocking and less efficient combustion ⚠️.<br>
+                  &nbsp;&nbsp;• RON 97 has a higher octane rating (97), allowing for smoother combustion and better fuel efficiency ✅.<br><br>
+                <strong>Proton Cars:</strong><br>
+                - <span class="emoji">🚗</span> High-performance engines (e.g., Proton X50 and X70) are designed to take advantage of higher octane fuels like RON 97.<br>
+                - <span class="emoji">🌍</span> Using RON 97 improves fuel efficiency, reduces emissions, and enhances engine performance.<br>
+                - <span class="emoji">⚠️</span> While RON 95 can still be used, RON 97 provides better overall performance and efficiency.
+            `;
+
+            document.getElementById("explanationText").innerHTML = explanation;
+            document.getElementById("restartButton").style.display = "block";
+        }
+
+        function restartMission() {
+            console.log("Restart Mission button clicked");
+            startSimulation();
+        }
+    </script>
+</body>
+</html>
